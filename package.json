@@ -1,0 +1,51 @@
+{
+  "name": "precis-analytics",
+  "version": "0.0.1",
+  "description": "Precis analytics is the analytics processor service.",
+  "main": "server.js",
+  "scripts": {
+    "test": "./node_modules/mocha/bin/mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:precis-logging/analytics.git"
+  },
+  "keywords": [
+    "Log",
+    "analytics"
+  ],
+  "author": "Jeremy Darling <Jeremy.Darling@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/precis-logging/analytics/issues"
+  },
+  "homepage": "https://github.com/precis-logging/analytics",
+  "dependencies": {
+    "async": "^0.9.0",
+    "hapi": "^8.2.0",
+    "heapdump": "^0.3.5",
+    "memwatch": "^0.2.2",
+    "mongo-oplog": "^0.1.6",
+    "mongodb": "^2.0.25",
+    "npm": "^2.7.1",
+    "prodio-reform": "0.0.1",
+    "sift": "^1.1.0"
+  },
+  "devDependencies": {
+    "browserify": "^9.0.7",
+    "del": "^1.1.1",
+    "gulp": "^3.8.11",
+    "gulp-autoprefixer": "^2.1.0",
+    "gulp-imagemin": "^2.2.1",
+    "gulp-inject": "^1.2.0",
+    "gulp-less": "^3.0.2",
+    "gulp-minify-css": "^1.0.0",
+    "gulp-rename": "^1.2.2",
+    "gulp-replace": "^0.5.3",
+    "mocha": "^2.2.1",
+    "react": "^0.12.2",
+    "react-d3": "^0.3.0",
+    "reactify": "^1.1.0",
+    "vinyl-source-stream": "^1.1.0"
+  }
+}
