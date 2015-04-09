@@ -15,7 +15,6 @@ var config = require('./lib/config');
 var Oplog = require('mongo-oplog');
 var Bus = require('./plugins/bus').Bus;
 
-var store = require('./lib/store');
 var webroot = path.join(__dirname, (config.web||{}).site||'/web/site');
 var server = require('./lib/server');
 var sift = require('sift');
