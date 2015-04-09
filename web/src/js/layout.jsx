@@ -28,10 +28,10 @@ var EndpointSelector = React.createClass({
     }.bind(this));
   },
   render: function(){
-    var items = (this.state.items||[]).map(function(item){
+    var items = (this.state.items||[]).map(function(item, index){
       var text = item.key || item.value || item;
       var value = item.value || item.key || item;
-      return <option key={value} value={value}>{text}</option>;
+      return index===2?<option key={value} value={value} selected>{text}</option>:<option key={value} value={value}>{text}</option>;
     });
     return (
       <select ref="select" onChange={this.props.onChange}>
@@ -45,6 +45,7 @@ var Vis = React.createClass({
   render: function(){
     var data = this.props.data||{buckets: [], stats: {}};
     var highTPS = this.props.highTPS;
+    var tps = highTPS?<div><br />High TPS: {highTPS}</div>:'';
     var codes = (data.stats.statusCodes||[]).sort();
     var lineData = codes.map(function(code){
       return {
@@ -71,28 +72,26 @@ var Vis = React.createClass({
     var text = JSON.stringify(lineData, null, '  ');
     var fromTime = data.buckets.length?new Date(data.buckets[0].key+'.000Z'):'';
     var toTime = data.buckets.length?new Date(data.buckets[data.buckets.length-1].key+'.000Z'):'';
-    var width = document.body.clientWidth-50;
+    var width = this.props.width || document.body.clientWidth-50;
     var countsChart = data.buckets.length?<LineChart
                   legend={true}
                   data={lineData}
                   width={width}
-                  height={300}
-                  title={"Hit Counts from "+fromTime+" to "+toTime}
+                  height={200}
+                  title={(data.name||'')+" Counts from "+fromTime+" to "+toTime}
                   />:'Loading';
     var durationChart = data.buckets.length?<LineChart
                   legend={false}
                   data={durationData}
                   width={width}
-                  height={300}
-                  title={"Max Duration from "+fromTime+" to "+toTime}
+                  height={100}
+                  title={"Duration in ms"}
                   />:'Loading';
     return (
       <div>
         {countsChart}
         {durationChart}
-        <div>
-          <br />High TPS: {highTPS}
-        </div>
+        {tps}
       </div>
     );
   }
@@ -136,10 +135,34 @@ var Layout = React.createClass({
   endpointSelected: function(event){
     this.updateEndpointData(Support.val(event.target));
   },
+  updateTraffic: function(key, endpoint){
+    if(this.state[key+'Trigger']){
+      clearTimeout(this.state[key+'Trigger']);
+    }
+    Loader.get('/api/v1/window/'+endpoint, function(err, data){
+      if(err){
+        return alert(err);
+      }
+      var trigger = setTimeout(function(){
+        this.updateTraffic(key, endpoint);
+      }.bind(this), 2000);
+      var stateInfo = {};
+      stateInfo[key+'Trigger'] = trigger;
+      stateInfo[key] = data;
+      return this.setState(stateInfo);
+    }.bind(this));
+  },
+  componentDidMount: function(){
+    this.updateTraffic('inbound', 'All Inbound Traffic');
+    this.updateTraffic('outbound', 'All Outbound Traffic');
+  },
   render: function(){
+    var inboundTraffic = <Vis data={this.state.inbound} />;
+    var outboundTraffic = <Vis data={this.state.outbound} />;
     return (
       <div>
-        <h1>Window Endpoint Overview</h1>
+        {inboundTraffic}
+        {outboundTraffic}
         <div>
           Endpoint: <EndpointSelector onChange={this.endpointSelected} onLoaded={this.endpointsReady} />
         </div>

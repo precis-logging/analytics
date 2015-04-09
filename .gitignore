@@ -8,3 +8,4 @@ npm-debug.log
 config/
 /config.js
 stats.js
+test.js
