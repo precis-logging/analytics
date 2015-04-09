@@ -103,10 +103,7 @@ module.exports = {
       port: 9292
     },
     bus: {
-      connectionString: "mongodb://10.198.10.67:27017,"+
-                         "10.198.7.84:27017,"+
-                         "10.198.4.58:27017"+
-                         "/console-ui-logs?replicaSet=1",
+      connectionString: "mongodb://.../ui-logs?replicaSet=1",
       collection: "logs"
     },
     windows: [
@@ -143,10 +140,7 @@ module.exports = {
   },
   stage: {
     bus: {
-      connectionString: "mongodb://10.199.0.253:27017,"+ // old
-                          "10.199.4.66:27017,"+ // old
-                          "10.199.14.47:27017"+ // new
-                         "/console-ui-logs?replicaSet=1",
+      connectionString: "mongodb://.../ui-logs?replicaSet=1",
       collection: "logs"
     },
   },
