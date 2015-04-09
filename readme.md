@@ -10,7 +10,7 @@ Configuration
 
 Basic configuration file should be put in ./config/config.js
 
-Something similar to the following where the expected data format is like the following:
+For an expected data format like the following:
 
 ```javascript
 {
