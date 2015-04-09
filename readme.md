@@ -151,7 +151,7 @@ module.exports = {
               // only send notifications if there hasn't been any in an hour since the last incident
               if(!this.lastNotified || (time - this.lastNotified > 1000 * 60 * 60)){
                 // do something like send out a notification
-                request({
+                this.request({
                     url: 'http://.../',
                     method: 'POST',
                     body: rec
@@ -321,7 +321,10 @@ var handler = new Handler({
             },
             do: function(info){
               var rec = info.rec;
-              console.log('res.statusCode', rec);
+              console.log('res.statusCode', this.util.inspect(rec, {colors: true, depth: null, showHidden: true}));
+            },
+            scope: {
+              util: require('util')
             }
           }
         ]
