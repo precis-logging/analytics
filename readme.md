@@ -12,7 +12,7 @@ Basic configuration file should be put in ./config/config.js
 
 Something similar to the following where the expected data format is like the following:
 
-```
+```javascript
 {
   time: Date(),
   req: {
@@ -31,7 +31,7 @@ Something similar to the following where the expected data format is like the fo
 
 The config could look as follows:
 
-```
+```javascript
 var defaults = require('../lib/utils').defaults;
 var request = require('request');
 
