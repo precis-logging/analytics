@@ -33,6 +33,7 @@ The config could look as follows:
 
 ```
 var defaults = require('../lib/utils').defaults;
+var request = require('request');
 
 var standardWindow = function(options){
   return defaults(options, {
@@ -113,6 +114,36 @@ module.exports = {
           direction: 'inbound',
           'res.statusCode': {$exists: true}
         },
+        actions: [
+          {
+            when: {
+              'req.rec.duration': {
+                  $gte: 1000
+                }
+            }
+            do: function(info){
+              /*
+                info.window contains the window
+                info.rec contains the record just submitted
+              */
+              var dt = new Date();
+              var time = dt.getTime();
+              // only send notifications if there hasn't been any in an hour since the last incident
+              if(!this.lastNotified || (time - this.lastNotified > 1000 * 60 * 60)){
+                // do something like send out a notification
+                request({
+                    url: 'http://.../',
+                    method: 'POST',
+                    body: rec
+                  }, function(){});
+              }
+              this.lastNotified = time;
+            },
+            scope: {
+              request: request
+            }
+          }
+        ]
       }),
       standardWindow({
         name: 'All Outbound Traffic',
