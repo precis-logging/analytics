@@ -362,7 +362,9 @@ var handler = new Handler({
       actions: [
         {
           when: {
-            'window.stats.max': {$gt: 0}
+            'window.stats.max': {
+                $gt: 0
+              }
           },
           do: function(info){
             var window = info.window;
