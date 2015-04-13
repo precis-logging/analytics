@@ -1,0 +1,14 @@
+Mean
+  Average
+
+Standard Deviation
+  The Standard Deviation is a measure of how spread out numbers are. (http://www.mathsisfun.com/data/standard-deviation.html)
+
+Percentile
+  % of information with a value lower than the value selected.  So if 95% of the data is lower than the current value then the value is in the 95th percentile.
+
+Median
+  If there is an odd number of data values then the median will be the value in the middle. If there is an even number of data values the median is the mean of the two data values in the middle. For the data set 1, 1, 2, 5, 6, 6, 9 the median is 5. For the data set 1, 1, 2, 6, 6, 9 the median is 4.
+
+Mode
+  To find the median, your numbers have to be listed in numerical order, so you may have to rewrite your list first. The "mode" is the value that occurs most often. If no number is repeated, then there is no mode for the list. The "range" is just the difference between the largest and smallest values.
