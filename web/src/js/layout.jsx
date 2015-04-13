@@ -31,7 +31,7 @@ var EndpointSelector = React.createClass({
     var items = (this.state.items||[]).map(function(item, index){
       var text = item.key || item.value || item;
       var value = item.value || item.key || item;
-      return index===2?<option key={value} value={value} selected>{text}</option>:<option key={value} value={value}>{text}</option>;
+      return index===2?<option key={value} value={value}>{text}</option>:<option key={value} value={value}>{text}</option>;
     });
     return (
       <select ref="select" onChange={this.props.onChange}>
@@ -73,18 +73,19 @@ var Vis = React.createClass({
     var fromTime = data.buckets.length?new Date(data.buckets[0].key+'.000Z'):'';
     var toTime = data.buckets.length?new Date(data.buckets[data.buckets.length-1].key+'.000Z'):'';
     var width = this.props.width || document.body.clientWidth-50;
+    var height = this.props.height || document.body.clientHeight;
     var countsChart = data.buckets.length?<LineChart
                   legend={true}
                   data={lineData}
                   width={width}
-                  height={200}
+                  height={height*0.60}
                   title={(data.name||'')+" Counts from "+fromTime+" to "+toTime}
                   />:'Loading';
     var durationChart = data.buckets.length?<LineChart
                   legend={false}
                   data={durationData}
                   width={width}
-                  height={100}
+                  height={height*0.20}
                   title={"Duration in ms"}
                   />:'Loading';
     return (
@@ -157,12 +158,12 @@ var Layout = React.createClass({
     this.updateTraffic('outbound', 'All Outbound Traffic');
   },
   render: function(){
-    var inboundTraffic = <Vis data={this.state.inbound} />;
-    var outboundTraffic = <Vis data={this.state.outbound} />;
+    //var inboundTraffic = <Vis data={this.state.inbound} />;
+    //var outboundTraffic = <Vis data={this.state.outbound} />;
+      //  {inboundTraffic}
+      //  {outboundTraffic}
     return (
       <div>
-        {inboundTraffic}
-        {outboundTraffic}
         <div>
           Endpoint: <EndpointSelector onChange={this.endpointSelected} onLoaded={this.endpointsReady} />
         </div>

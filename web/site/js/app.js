@@ -38221,7 +38221,7 @@ var EndpointSelector = React.createClass({displayName: "EndpointSelector",
     var items = (this.state.items||[]).map(function(item, index){
       var text = item.key || item.value || item;
       var value = item.value || item.key || item;
-      return index===2?React.createElement("option", {key: value, value: value, selected: true}, text):React.createElement("option", {key: value, value: value}, text);
+      return index===2?React.createElement("option", {key: value, value: value}, text):React.createElement("option", {key: value, value: value}, text);
     });
     return (
       React.createElement("select", {ref: "select", onChange: this.props.onChange}, 
@@ -38263,18 +38263,19 @@ var Vis = React.createClass({displayName: "Vis",
     var fromTime = data.buckets.length?new Date(data.buckets[0].key+'.000Z'):'';
     var toTime = data.buckets.length?new Date(data.buckets[data.buckets.length-1].key+'.000Z'):'';
     var width = this.props.width || document.body.clientWidth-50;
+    var height = this.props.height || document.body.clientHeight;
     var countsChart = data.buckets.length?React.createElement(LineChart, {
                   legend: true, 
                   data: lineData, 
                   width: width, 
-                  height: 200, 
+                  height: height*0.60, 
                   title: (data.name||'')+" Counts from "+fromTime+" to "+toTime}
                   ):'Loading';
     var durationChart = data.buckets.length?React.createElement(LineChart, {
                   legend: false, 
                   data: durationData, 
                   width: width, 
-                  height: 100, 
+                  height: height*0.20, 
                   title: "Duration in ms"}
                   ):'Loading';
     return (
@@ -38347,12 +38348,12 @@ var Layout = React.createClass({displayName: "Layout",
     this.updateTraffic('outbound', 'All Outbound Traffic');
   },
   render: function(){
-    var inboundTraffic = React.createElement(Vis, {data: this.state.inbound});
-    var outboundTraffic = React.createElement(Vis, {data: this.state.outbound});
+    //var inboundTraffic = <Vis data={this.state.inbound} />;
+    //var outboundTraffic = <Vis data={this.state.outbound} />;
+      //  {inboundTraffic}
+      //  {outboundTraffic}
     return (
       React.createElement("div", null, 
-        inboundTraffic, 
-        outboundTraffic, 
         React.createElement("div", null, 
           "Endpoint: ", React.createElement(EndpointSelector, {onChange: this.endpointSelected, onLoaded: this.endpointsReady})
         ), 

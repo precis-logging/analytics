@@ -5,9 +5,11 @@ var Timestamp = require('mongodb').Timestamp;
 
 var getStartTime = function(options){
   var startFrom = options.startFrom || new Date();
+  /*
   startFrom.setMinutes(0);
   startFrom.setSeconds(0);
   startFrom.setMilliseconds(0);
+  */
   return new Timestamp(0, startFrom.getTime() / 1000);
 };
 
