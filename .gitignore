@@ -7,6 +7,6 @@ npm-debug.log
 .env
 config/
 /config.js
-stats.js
+/stats.js
 .test
 *.heapsnapshot
