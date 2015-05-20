@@ -77,7 +77,9 @@ process.umask = function() { return 0; };
 
 var React = require('react');
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
+
+  displayName: 'Area',
 
   propTypes: {
     path: React.PropTypes.string,
@@ -117,9 +119,11 @@ var mixins = require('../mixins');
 var CartesianChartPropsMixin = mixins.CartesianChartPropsMixin;
 
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
 
   mixins: [ CartesianChartPropsMixin ],
+  
+  displayName: 'AreaChart',
 
   propTypes: {
     margins: React.PropTypes.object
@@ -137,6 +141,8 @@ module.exports = React.createClass({displayName: "exports",
 
     var props = this.props;
 
+    var data = props.data;
+
     // Calculate inner chart dimensions
     var innerWidth, innerHeight;
     innerWidth = props.width - props.margins.left - props.margins.right;
@@ -146,8 +152,8 @@ module.exports = React.createClass({displayName: "exports",
       innerWidth = innerWidth - props.legendOffset;
     }
 
-    if (!Array.isArray(props.data)) {
-      props.data = [props.data];
+    if (!Array.isArray(data)) {
+      data = [data];
     }
 
     var yScale = d3.scale.linear()
@@ -156,7 +162,7 @@ module.exports = React.createClass({displayName: "exports",
     var xValues = [];
     var yValues = [];
     var seriesNames = [];
-    props.data.forEach( function(series)  {
+    data.forEach( function(series)  {
       seriesNames.push(series.name);
       series.values.forEach(function(val, idx)  {
         xValues.push(props.xAccessor(val));
@@ -185,7 +191,7 @@ module.exports = React.createClass({displayName: "exports",
       .order('reverse')
       .values(function(d) { return d.values; });
 
-    var layers = stack(props.data);
+    var layers = stack(data);
 
     var trans = ("translate(" +  props.margins.left + "," +  props.margins.top + ")");
 
@@ -209,7 +215,7 @@ module.exports = React.createClass({displayName: "exports",
       React.createElement(Chart, {
         viewBox: props.viewBox, 
         legend: props.legend, 
-        data: props.data, 
+        data: data, 
         margins: props.margins, 
         colors: props.colors, 
         width: props.width, 
@@ -225,6 +231,7 @@ module.exports = React.createClass({displayName: "exports",
             xAxisTickCount: props.xAxisTickCount, 
             xAxisLabel: props.xAxisLabel, 
             xAxisLabelOffset: props.xAxisLabelOffset, 
+            tickFormatting: props.xAxisFormatter, 
             xOrient: props.xOrient, 
             margins: props.margins, 
             width: innerWidth, 
@@ -237,6 +244,7 @@ module.exports = React.createClass({displayName: "exports",
             yAxisTickCount: props.yAxisTickCount, 
             yAxisLabel: props.yAxisLabel, 
             yAxisLabelOffset: props.yAxisLabelOffset, 
+            tickFormatting: props.yAxisFormatter, 
             yOrient: props.yOrient, 
             margins: props.margins, 
             width: innerWidth, 
@@ -256,8 +264,10 @@ var React = require('react');
 var d3 = require('d3');
 var Area = require('./Area');
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
 
+  displayName: 'DataSeries',
+  
   render:function() {
 
     var props = this.props;
@@ -270,7 +280,7 @@ module.exports = React.createClass({displayName: "exports",
     var path = area(props.data);
 
     return (
-      React.createElement(Area, {fill: props.colors(props.name), path: path})
+      React.createElement(Area, {fill: props.colors(props.index), path: path})
     );
   }
 
@@ -324,8 +334,14 @@ var common = require('../common');
 var Chart = common.Chart;
 var XAxis = common.XAxis;
 var YAxis = common.YAxis;
+var mixins = require('../mixins');
+var CartesianChartPropsMixin = mixins.CartesianChartPropsMixin;
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
+
+  mixins: [ CartesianChartPropsMixin ],
+
+  displayName: 'BarChart',
 
   propTypes: {
     data: React.PropTypes.array,
@@ -339,13 +355,9 @@ module.exports = React.createClass({displayName: "exports",
 
   getDefaultProps:function() {
     return {
-      data: [],
       yAxisTickCount: 4,
-      width: 500,
-      height: 200,
-      margins: {top: 20, right: 30, bottom: 30, left: 30},
-      fill: "#3182bd",
-      title: ''
+      margins: {top: 10, right: 20, bottom: 40, left: 45},
+      fill: "#3182bd"
     };
   },
 
@@ -387,17 +399,23 @@ module.exports = React.createClass({displayName: "exports",
           ), 
           React.createElement(YAxis, {
             yAxisClassName: "rd3-barchart-yaxis", 
+            yAxisLabel: props.yAxisLabel, 
+            yAxisLabelOffset: props.yAxisLabelOffset, 
             yScale: yScale, 
             margins: margins, 
             yAxisTickCount: props.yAxisTickCount, 
+            tickFormatting: props.yAxisFormatter, 
             width: props.width - sideMargins, 
             height: props.height - topBottomMargins}
           ), 
           React.createElement(XAxis, {
             xAxisClassName: "rd3-barchart-xaxis", 
+            xAxisLabel: props.xAxisLabel, 
+            xAxisLabelOffset: props.xAxisLabelOffset, 
             xScale: xScale, 
             data: props.data, 
             margins: margins, 
+            tickFormatting: props.xAxisFormatter, 
             width: props.width - sideMargins, 
             height: props.height - topBottomMargins}
           )
@@ -408,14 +426,16 @@ module.exports = React.createClass({displayName: "exports",
 
 });
 
-},{"../common":28,"./DataSeries":9,"d3":37,"react":219}],9:[function(require,module,exports){
+},{"../common":28,"../mixins":36,"./DataSeries":9,"d3":37,"react":219}],9:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
 var d3 = require('d3');
 var Bar = require('./Bar');
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
+
+  displayName: 'DataSeries',
 
   propTypes: {
     fill: React.PropTypes.string,
@@ -470,7 +490,9 @@ var React = require('react');
 var utils = require('../utils');
 
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
+
+  displayName: 'Candle',
 
   getInitialState:function() {
     // state for animation usage
@@ -555,8 +577,10 @@ var YAxis = common.YAxis;
 var Voronoi = common.Voronoi;
 
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
 
+  displayName: 'CandleStickChart',
+  
   propTypes: {
     data: React.PropTypes.oneOfType([
       React.PropTypes.array,
@@ -663,7 +687,7 @@ module.exports = React.createClass({displayName: "exports",
             xScale: scales.xScale, 
             xAxisTickInterval: props.xAxisTickInterval, 
             xAxisOffset: props.xAxisOffset, 
-            xAxisFormatter: props.xAxisFormatter, 
+            tickFormatting: props.xAxisFormatter, 
             xAxisLabel: props.xAxisLabel, 
             xAxisLabelOffset: props.xAxisLabelOffset, 
             xOrient: props.xOrient, 
@@ -676,7 +700,7 @@ module.exports = React.createClass({displayName: "exports",
             yScale: scales.yScale, 
             yAxisOffset: props.yAxisOffset, 
             yAxisTickCount: props.yAxisTickCount, 
-            yAxisFormatter: props.yAxisFormatter, 
+            tickFormatting: props.yAxisFormatter, 
             yAxisLabel: props.yAxisLabel, 
             yAxisLabelOffset: props.yAxisLabelOffset, 
             yOrient: props.yOrient, 
@@ -701,7 +725,9 @@ var Candle = require('./Candle');
 var Wick = require('./Wick');
 
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
+
+  displayName: 'DataSeries',
 
   propTypes: {
     fillUp: React.PropTypes.string.isRequired,
@@ -782,7 +808,9 @@ module.exports = React.createClass({displayName: "exports",
 var React = require('react');
 
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
+
+  displayName: 'Wick',
 
   propTypes: {
     strokeWidth: React.PropTypes.number,
@@ -824,7 +852,9 @@ exports.CandlestickChart = require('./CandlestickChart');
 var React = require('react');
 var d3 = require('d3');
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
+
+  displayName: 'Legend',
 
   propTypes: {
     width: React.PropTypes.number,
@@ -926,7 +956,9 @@ var Polygon = React.createClass({displayName: "Polygon",
 });
 
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
+
+  displayName: 'Voronoi',
 
   render: function() {
     var xScale = this.props.xScale;
@@ -956,7 +988,9 @@ module.exports = React.createClass({displayName: "exports",
 var React = require('react');
 var d3 = require('d3');
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
+
+  displayName: 'AxisLine',
 
   propTypes: {
     scale: React.PropTypes.func.isRequired,
@@ -973,6 +1007,7 @@ module.exports = React.createClass({displayName: "exports",
       innerTickSize: 6,
       outerTickSize: 6,
       tickPadding: 3,
+      fill: 'none',
       tickArguments: [10],
       tickValues: null,
       tickFormat: null 
@@ -1010,7 +1045,7 @@ module.exports = React.createClass({displayName: "exports",
         className: "domain", 
         d: d, 
         style: {'shapeRendering':'crispEdges'}, 
-        fill: "none", 
+        fill: props.fill, 
         stroke: props.stroke, 
         strokeWidth: props.strokeWidth
       }
@@ -1025,18 +1060,29 @@ module.exports = React.createClass({displayName: "exports",
 var React = require('react');
 var d3 = require('d3');
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
 
+  displayName: 'AxisTick',
+  
+  propTypes: {
+    scale: React.PropTypes.func.isRequired,
+    orient: React.PropTypes.oneOf(['top','bottom','left','right']).isRequired,
+    tickArguments : React.PropTypes.array,
+    tickValues: React.PropTypes.array,
+    innerTickSize: React.PropTypes.number,
+    outerTickSize: React.PropTypes.number,
+    tickPadding: React.PropTypes.number,
+    tickFormat: React.PropTypes.func,
+    tickStroke: React.PropTypes.string
+  },
   getDefaultProps:function() {
     return {
       innerTickSize: 6,
       outerTickSize: 6,
+      tickStroke: '#000',
       tickPadding: 3,
       tickArguments: [10],
-      tickValues: null,
-      d3_identity: function(d){return d;},
-      tickFormatting: function(d){return d;},
-      tickFormat: null
+      tickValues: null
     };
   },
 
@@ -1049,15 +1095,29 @@ module.exports = React.createClass({displayName: "exports",
         adjustedScale,
         textAnchor,
         tickFormat,
-        y1, y2, dy, x1, x2, dx;
+        y0, y1, y2, dy, x0, x1, x2, dx;
 
-    var sign = props.yScale ? -1 : 1;
-    var tickSpacing = Math.max(props.innerTickSize, 0) + props.tickPadding;  
+    var sign = props.orient === 'top' || props.orient === 'right' ? -1 : 1;
+    var tickSpacing = Math.max(props.innerTickSize, 0) + props.tickPadding;
 
-    scale = props.yScale ? props.yScale : props.xScale;
+    scale = props.scale;
 
-    ticks = props.tickValues == null ? (scale.ticks ? scale.ticks.apply(scale, props.tickArguments) : scale.domain()) : props.tickValues;
-    tickFormat = props.tickFormat_ == null ? (scale.tickFormat ? scale.tickFormat.apply(scale, props.tickArguments) : props.d3_identity) : props.tickFormat_;
+    if (props.tickValues) {
+      ticks = props.tickValues;
+    } else if (scale.ticks) {
+      ticks = scale.ticks.apply(scale, props.tickArguments);
+    } else {
+      ticks = scale.domain();
+    }
+
+    if (props.tickFormatting) {
+        tickFormat = props.tickFormatting
+    } else if (scale.tickFormat) {
+        tickFormat = scale.tickFormat.apply(scale, props.tickArguments)
+    } else {
+        tickFormat = function(d) {return d;};
+
+    }
 
     adjustedScale = scale.rangeBand ? function(d)  { return scale(d) + scale.rangeBand() / 2; } : scale;
 
@@ -1082,15 +1142,15 @@ module.exports = React.createClass({displayName: "exports",
       case 'left':
         tr = function(tick)  {return ("translate(0," + adjustedScale(tick) + ")");};
         textAnchor = "end";
-        x2 = props.innerTickSize * sign;
-        x1 = tickSpacing * sign;
+        x2 = props.innerTickSize * -sign;
+        x1 = tickSpacing * -sign;
         dy = ".32em";
         break;
       case 'right':
         tr = function(tick)  {return ("translate(0," + adjustedScale(tick) + ")");};
-        textAnchor = "end";
-        x2 = props.innerTickSize;
-        x1 = tickSpacing * sign;
+        textAnchor = "start";
+        x2 = props.innerTickSize * -sign;
+        x1 = tickSpacing * -sign;
         dy = ".32em";
         break;
     }
@@ -1100,12 +1160,12 @@ module.exports = React.createClass({displayName: "exports",
         ticks.map( function(tick, i)  {
           return (
             React.createElement("g", {key: i, className: "tick", transform: tr(tick)}, 
-              React.createElement("line", {style: {shapeRendering:'crispEdges',opacity:'1',stroke:'#000'}, x2: x2, y2: y2}
+              React.createElement("line", {style: {shapeRendering:'crispEdges',opacity:'1',stroke:props.tickStroke}, x2: x2, y2: y2}
               ), 
               React.createElement("text", {
                 strokeWidth: "0.01", 
                 dy: dy, x: x1, y: y1, 
-                stroke: "#000", 
+                style: {stroke:props.tickTextStroke, fill:props.tickTextStroke}, 
                 textAnchor: textAnchor
               }, 
                 tickFormat(tick)
@@ -1126,7 +1186,9 @@ module.exports = React.createClass({displayName: "exports",
 var React = require('react');
 
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
+
+  displayName: 'Label',
 
   render:function() {
     var props = this.props;
@@ -1189,8 +1251,10 @@ var AxisTicks = require('./AxisTicks');
 var AxisLine = require('./AxisLine');
 var Label = require('./Label');
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
 
+  displayName: 'XAxis',
+  
   propTypes: {
     xAxisClassName: React.PropTypes.string.isRequired,
     xOrient: React.PropTypes.oneOf(['top', 'bottom']),
@@ -1246,12 +1310,17 @@ module.exports = React.createClass({displayName: "exports",
         React.createElement(AxisTicks, {
           tickFormatting: props.tickFormatting, 
           tickArguments: tickArguments, 
-          xScale: props.xScale, 
+          tickStroke: props.tickStroke, 
+          tickTextStroke: props.tickTextStroke, 
+          innerTickSize: props.tickSize, 
+          scale: props.xScale, 
           orient: props.xOrient}
         ), 
         React.createElement(AxisLine, React.__spread({
           scale: props.xScale, 
-          orient: props.xOrient}, 
+          stroke: props.stroke, 
+          orient: props.xOrient, 
+          outerTickSize: props.tickSize}, 
           props)
         )
       )
@@ -1269,7 +1338,9 @@ var AxisTicks = require('./AxisTicks');
 var AxisLine = require('./AxisLine');
 var Label = require('./Label');
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
+
+  displayName: 'YAxis',
 
   propTypes: {
     yAxisClassName: React.PropTypes.string,
@@ -1322,14 +1393,17 @@ module.exports = React.createClass({displayName: "exports",
         React.createElement(AxisTicks, {
           tickFormatting: props.tickFormatting, 
           tickArguments: tickArguments, 
-          yScale: props.yScale, 
-          orient: props.yOrient, 
-          height: props.height, 
-          width: props.width}
+          tickStroke: props.tickStroke, 
+          tickTextStroke: props.tickTextStroke, 
+          innerTickSize: props.tickSize, 
+          scale: props.yScale, 
+          orient: props.yOrient}
         ), 
         React.createElement(AxisLine, React.__spread({
           scale: props.yScale, 
-          orient: props.yOrient}, 
+          stroke: props.stroke, 
+          orient: props.yOrient, 
+          outerTickSize: props.tickSize}, 
           props)
         ), 
         React.createElement(Label, {
@@ -1356,7 +1430,10 @@ exports.YAxis = require('./YAxis');
 
 var React = require('react');
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
+
+  displayName: 'BasicChart',
+
   render: function() {
     return (
       React.createElement("div", null, 
@@ -1378,8 +1455,10 @@ var React = require('react');
 var LegendChart = require('./LegendChart');
 var BasicChart = require('./BasicChart');
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
 
+  displayName: 'Chart',
+  
   propTypes: {
     legend: React.PropTypes.bool,
     viewBox: React.PropTypes.string
@@ -1407,7 +1486,9 @@ module.exports = React.createClass({displayName: "exports",
 var React = require('react');
 var Legend = require('../Legend');
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
+
+  displayName: 'LegendChart',
 
   propTypes: {
     legend: React.PropTypes.bool,
@@ -1487,7 +1568,9 @@ exports.CandlestickChart = require('./candlestick').CandlestickChart;
 var React = require('react');
 
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
+
+  displayName: 'Circle',
 
   propTypes: {
     cx: React.PropTypes.number,
@@ -1569,8 +1652,10 @@ var Line = require('./Line');
 var Circle = require('./Circle');
 
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
 
+  displayName: 'DataSeries',
+  
   propTypes: {
     data: React.PropTypes.array,
     interpolationType: React.PropTypes.string,
@@ -1700,7 +1785,9 @@ module.exports = React.createClass({displayName: "exports",
 var React = require('react');
 
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
+
+  displayName: 'Line',
 
   propTypes: {
     data: React.PropTypes.object,
@@ -1790,15 +1877,18 @@ var mixins = require('../mixins');
 var CartesianChartPropsMixin = mixins.CartesianChartPropsMixin;
 
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
 
   mixins: [ CartesianChartPropsMixin ],
+
+  displayName: 'LineChart',
 
   propTypes: {
     margins: React.PropTypes.object,
     pointRadius: React.PropTypes.number,
     colors: React.PropTypes.func,
-    displayDataPoints: React.PropTypes.bool
+    displayDataPoints: React.PropTypes.bool,
+    hoverAnimation: React.PropTypes.bool
   },
 
   getDefaultProps:function() {
@@ -1808,7 +1898,8 @@ module.exports = React.createClass({displayName: "exports",
       pointRadius: 3,
       interpolate: false,
       interpolationType: null,
-      displayDataPoints: true
+      displayDataPoints: true,
+      hoverAnimation: true
     };
   },
 
@@ -1817,6 +1908,8 @@ module.exports = React.createClass({displayName: "exports",
     var structure = immstruct('lineChart', { voronoi: {}, voronoiSeries: {}});
 
     var props = this.props;
+
+    var data = props.data;
 
     var interpolationType = props.interpolationType || (props.interpolate ? 'cardinal' : 'linear');
 
@@ -1830,11 +1923,11 @@ module.exports = React.createClass({displayName: "exports",
       innerWidth = innerWidth - props.legendOffset;
     }
 
-    if (!Array.isArray(props.data)) {
-      props.data = [props.data];
+    if (!Array.isArray(data)) {
+      data = [data];
     }
 
-    var flattenedData = utils.flattenData(props.data, props.xAccessor, props.yAccessor);
+    var flattenedData = utils.flattenData(data, props.xAccessor, props.yAccessor);
 
     var allValues = flattenedData.allValues,
         xValues = flattenedData.xValues,
@@ -1844,7 +1937,7 @@ module.exports = React.createClass({displayName: "exports",
 
     var trans = ("translate(" +  props.margins.left + "," +  props.margins.top + ")");
 
-    var dataSeriesArray = props.data.map( function(series, idx)  {
+    var dataSeriesArray = data.map( function(series, idx)  {
       return (
           React.createElement(DataSeries, {
             structure: structure, 
@@ -1869,7 +1962,7 @@ module.exports = React.createClass({displayName: "exports",
       React.createElement(Chart, {
         viewBox: props.viewBox, 
         legend: props.legend, 
-        data: props.data, 
+        data: data, 
         margins: props.margins, 
         colors: props.colors, 
         width: props.width, 
@@ -1878,17 +1971,17 @@ module.exports = React.createClass({displayName: "exports",
       }, 
         React.createElement("g", {transform: trans, className: props.className}, 
           dataSeriesArray, 
-          React.createElement(Voronoi, {
+          props.hoverAnimation ? React.createElement(Voronoi, {
             structure: structure, 
             data: allValues, 
             xScale: scales.xScale, 
             yScale: scales.yScale, 
             width: innerWidth, 
             height: innerHeight}
-          ), 
+          ) : React.createElement("g", null), 
           React.createElement(XAxis, {
             xAxisClassName: "rd3-linechart-xaxis", 
-            xAxisFormatter: props.xAxisFormatter, 
+            tickFormatting: props.xAxisFormatter, 
             xAxisLabel: props.xAxisLabel, 
             xAxisLabelOffset: props.xAxisLabelOffset, 
             xAxisTickCount: props.xAxisTickCount, 
@@ -1902,7 +1995,7 @@ module.exports = React.createClass({displayName: "exports",
           ), 
           React.createElement(YAxis, {
             yAxisClassName: "rd3-linechart-yaxis", 
-            yAxisFormatter: props.yAxisFormatter, 
+            tickFormatting: props.yAxisFormatter, 
             yAxisLabel: props.yAxisLabel, 
             yAxisLabelOffset: props.yAxisLabelOffset, 
             yAxisTickCount: props.yAxisTickCount, 
@@ -1944,9 +2037,11 @@ module.exports =  {
     yAxisTickCount: React.PropTypes.number,
     yAxisLabel: React.PropTypes.string,
     yAxisLabelOffset: React.PropTypes.number,
+    yAxisFormatter: React.PropTypes.func,
     xAxisTickInterval: React.PropTypes.object,
     xAxisLabel: React.PropTypes.string,
     xAxisLabelOffset: React.PropTypes.number,
+    xAxisFormatter: React.PropTypes.func,
     legend: React.PropTypes.bool,
     legendOffset: React.PropTypes.number,
     width: React.PropTypes.number,
@@ -17390,7 +17485,9 @@ var React = require('react');
 var d3 = require('d3');
 
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
+
+  displayName: 'Arc',
 
   propTypes: {
     fill: React.PropTypes.string,
@@ -17480,8 +17577,10 @@ var d3 = require('d3');
 var Arc = require('./Arc');
 
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
 
+  displayName: 'DataSeries',
+  
   propTypes: {
     transform: React.PropTypes.string,
     data: React.PropTypes.array,
@@ -17539,7 +17638,9 @@ var DataSeries = require('./DataSeries');
 var Chart = require('../common').Chart;
 
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
+
+  displayName: 'PieChart',
 
   getDefaultProps: function() {
     return {
@@ -17601,7 +17702,9 @@ var React = require('react');
 var d3 = require('d3');
 var utils = require('../utils');
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
+
+  displayName: 'Circle',
 
   propTypes: {
     id: React.PropTypes.string,
@@ -17684,7 +17787,9 @@ var React = require('react');
 var Circle = require('./Circle');
 
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
+  
+  displayName: 'DataSeries',
 
   propTypes: {
     data: React.PropTypes.array,
@@ -17768,10 +17873,12 @@ var immstruct = require('immstruct');
 var DataSeries = require('./DataSeries');
 var CartesianChartPropsMixin = require('../mixins').CartesianChartPropsMixin;
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
 
   mixins: [ CartesianChartPropsMixin ],
 
+  displayName: 'ScatterChart',
+  
   propTypes: {
     margins: React.PropTypes.object,
     pointRadius: React.PropTypes.number,
@@ -17884,6 +17991,7 @@ module.exports = React.createClass({displayName: "exports",
             xScale: scales.xScale, 
             xAxisLabel: props.xAxisLabel, 
             xAxisLabelOffset: props.xAxisLabelOffset, 
+            tickFormatting: props.xAxisFormatter, 
             xOrient: props.xOrient, 
             data: props.data, 
             margins: props.margins, 
@@ -17898,6 +18006,7 @@ module.exports = React.createClass({displayName: "exports",
             yAxisOffset: props.yAxisOffset, 
             yAxisLabel: props.yAxisLabel, 
             yAxisLabelOffset: props.yAxisLabelOffset, 
+            tickFormatting: props.yAxisFormatter, 
             yOrient: props.yOrient, 
             margins: props.margins, 
             width: innerWidth, 
@@ -17922,7 +18031,9 @@ var React = require('react');
 var d3 = require('d3');
 
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
+
+  displayName: 'Cell',
 
   propTypes: {
     fill: React.PropTypes.string,
@@ -17973,7 +18084,9 @@ var d3 = require('d3');
 var Cell = require('./Cell');
 
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
+  
+  displayName: 'DataSeries',
   
   propTypes: {
     data: React.PropTypes.array,
@@ -18037,7 +18150,9 @@ var React = require('react');
 var Chart = require('../common').Chart;
 var DataSeries = require('./DataSeries');
 
-module.exports = React.createClass({displayName: "exports",
+module.exports = React.createClass({
+
+  displayName: 'Treemap',
 
   propTypes: {
     margins: React.PropTypes.object,
