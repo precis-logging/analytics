@@ -1,9 +1,9 @@
 var React = require('react');
 var Loader = require('../lib/loader');
 var Support = require('../lib/support');
-var rd3 = require('react-d3');
-var LineChart = rd3.LineChart;
-var AreaChart = rd3.AreaChart;
+var Charts = require('d3rrc');
+var LineChart = Charts.LineChart;
+var d3 = require('d3');
 
 var windowsAPI = '/api/v1/windows';
 
@@ -41,58 +41,149 @@ var EndpointSelector = React.createClass({
   }
 });
 
-var Vis = React.createClass({
-  render: function(){
+var DurationVis = React.createClass({
+  render(){
     var data = this.props.data||{buckets: [], stats: {}};
-    var highTPS = this.props.highTPS;
-    var tps = highTPS?<div><br />High TPS: {highTPS}</div>:'';
+    var series = [{
+        name: 'Duration',
+        values: data.buckets.map(function(bucket){
+          return {
+            x: new Date(bucket.key+'.000Z'),
+            y: parseInt(bucket.stats.max)||0
+          }
+        })||[]
+      }];
+    var seriesNames = function(d){
+      return d.name;
+    };
+    var seriesValues = function(d){
+      return d.values||[];
+    };
+    var pointNames = function(d){
+      return d.x.toISOString();
+    };
+    var pointValues = function(d){
+      return d?d.y:0;
+    };
+    var pointIndexes = function(d){
+      return d?d.x:0;
+    };
+    var color = d3.scale.category10();
+    var enterPoints = function(points){
+        points
+          .append("circle")
+          .attr("stroke", function(d){
+            return color(seriesNames(this.parentNode.parentNode.__data__));
+          })
+          .attr("r", 5)
+          .attr("fill", "white").attr("fill-opacity", .5)
+          .append('svg:title')
+      };
+    var updatePoints = function(points){
+      points.selectAll('circle title')
+      .text(function(d, s, i){
+        return Math.round(data.buckets[i].stats.max)+'ms';
+      });
+    };
+
+    return (
+        <LineChart
+          chart-height={this.props.height}
+          chart-seriesNames={seriesNames}
+          chart-seriesValues={seriesValues}
+          chart-pointNames={pointNames}
+          chart-pointValues={pointValues}
+          chart-pointIndexes={pointIndexes}
+          chart-lineInterpolation="linear"
+          chart-color={color}
+          chart-enterPoints={enterPoints}
+          chart-updatePoints={updatePoints}
+          data={series}
+          />
+    );
+  }
+});
+
+var StatusVis = React.createClass({
+  render(){
+    var data = this.props.data||{buckets: [], stats: {}};
     var codes = (data.stats.statusCodes||[]).sort();
-    var lineData = codes.map(function(code){
+    var series = codes.map(function(code){
       return {
         name: code,
         values: data.buckets.map(function(bucket){
           return {
             x: new Date(bucket.key+'.000Z'),
-            y: parseInt(bucket.stats.statusCodes[code]||0)||0
+            y: parseInt(bucket.stats.statusCodes[code]||0)||0,
+            count: bucket.stats.statusCodes[code]
           }
         })
       };
     });
-    var durationData = [
-            {
-              name: 'Duration',
-              values: data.buckets.map(function(bucket){
-                return {
-                  x: new Date(bucket.key+'.000Z'),
-                  y: parseInt(bucket.stats.max)||0
-                }
-              })
-            }
-          ];
-    var text = JSON.stringify(lineData, null, '  ');
-    var fromTime = data.buckets.length?new Date(data.buckets[0].key+'.000Z'):'';
-    var toTime = data.buckets.length?new Date(data.buckets[data.buckets.length-1].key+'.000Z'):'';
-    var width = this.props.width || document.body.clientWidth-50;
-    var height = this.props.height || document.body.clientHeight;
-    var countsChart = data.buckets.length?<LineChart
-                  legend={true}
-                  data={lineData}
-                  width={width}
-                  height={height*0.60}
-                  title={(data.name||'')+" Counts from "+fromTime+" to "+toTime}
-                  />:'Loading';
-    var durationChart = data.buckets.length?<LineChart
-                  legend={false}
-                  data={durationData}
-                  width={width}
-                  height={height*0.20}
-                  title={"Duration in ms"}
-                  />:'Loading';
+
+    var seriesNames = function(d){
+      return d.name;
+    };
+    var seriesValues = function(d){
+      return d.values||[];
+    };
+    var pointNames = function(d){
+      return d.x.toISOString();
+    };
+    var pointValues = function(d){
+      return d?d.y:0;
+    };
+    var pointIndexes = function(d){
+      return d?d.x:0;
+    };
+
+    var color = d3.scale.category10();
+    var enterPoints = function(points){
+        points
+          .append("circle")
+          .attr("stroke", function(d){
+            return color(seriesNames(this.parentNode.parentNode.__data__));
+          })
+          .attr("r", 5)
+          .attr("fill", "white").attr("fill-opacity", .5)
+          .append('svg:title')
+      };
+    var updatePoints = function(points){
+        points.selectAll('circle title')
+          .text(function(d, s, i){
+            return (d.count||0)+' transactions';
+          });
+      };
+
     return (
+        <LineChart
+          chart-height={this.props.height}
+          chart-seriesNames={seriesNames}
+          chart-seriesValues={seriesValues}
+          chart-pointNames={pointNames}
+          chart-pointValues={pointValues}
+          chart-pointIndexes={pointIndexes}
+          chart-lineInterpolation="linear"
+          chart-color={color}
+          chart-enterPoints={enterPoints}
+          chart-updatePoints={updatePoints}
+          data={series}
+          />
+    );
+  }
+});
+
+var Vis = React.createClass({
+  render(){
+    var data = this.props.data;
+    var height = this.props.height || document.body.clientHeight;
+    var charts = data?<div>
+            <StatusVis data={data} height={height*0.65}/>
+            <DurationVis data={data} height={height*0.3}/>
+          </div>:<div />;
+    return(
       <div>
-        {countsChart}
-        {durationChart}
-        {tps}
+        {charts}
       </div>
     );
   }
@@ -154,14 +245,8 @@ var Layout = React.createClass({
     }.bind(this));
   },
   componentDidMount: function(){
-    this.updateTraffic('inbound', 'All Inbound Traffic');
-    this.updateTraffic('outbound', 'All Outbound Traffic');
   },
   render: function(){
-    //var inboundTraffic = <Vis data={this.state.inbound} />;
-    //var outboundTraffic = <Vis data={this.state.outbound} />;
-      //  {inboundTraffic}
-      //  {outboundTraffic}
     return (
       <div>
         <div>
